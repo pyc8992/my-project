@@ -11,6 +11,7 @@
 
 # production
 /build
+/movie_app_2019/build
 
 # misc
 .DS_Store
