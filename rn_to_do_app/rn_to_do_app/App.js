@@ -2,32 +2,76 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions,
 Platform, ScrollView
 } from 'react-native';
+import { AppLoading } from "expo";
 import ToDo from "./ToDo";
+import uuidv1 from "uuid/v1";
 
 const { height, width } = Dimensions.get("window");
 
 export default function App() {
   const [newToDo, setNewToDo] = useState("");
+  const [loadedToDOs, setLoadedToDOs] = useState(true);
+  const [toDos, setToDos] = useState({});
   
   const controlNewToDo = (text) => {
     setNewToDo(text);
-  }
+  };
+
+  const loadToDos = () => {
+    setLoadedToDOs(true);
+  };
+
+  const addToDo = () => {
+    if(newToDo !== ""){
+
+      const ID = uuidv1();
+      let tempToDos = toDos;
+      tempToDos[ID] = {
+        id: ID,
+        isCompleted: false,
+        text: newToDo,
+        createdAt: Date.now()
+      };
+      setToDos(tempToDos);
+      setNewToDo("");
+    }
+  };
+
+  const deleteToDo = (id) => {
+    delete toDos[id];
+    setToDos({
+      ...toDos
+    });
+  };
 
   return (
+    <>    
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <Text style={styles.title}>Clone To Do</Text>
       <View style={styles.card}>
-        <TextInput style={styles.input} placeholder={"New To Do"} value={newToDo} onChangeText={controlNewToDo} 
-          placeholderTextColor={"#999"}
-          returnKeyType={"done"}
-          autoCorrect={false}
+        <TextInput 
+        style={styles.input} 
+        placeholder={"New To Do"} 
+        value={newToDo} 
+        onChangeText={controlNewToDo} 
+        placeholderTextColor={"#999"}
+        returnKeyType={"done"}
+        autoCorrect={false}
+        onSubmitEditing={addToDo}
         />
         <ScrollView contentContainerStyle={styles.toDos}>
-          <ToDo />
+          {Object.values(toDos).map(toDo => <ToDo key={toDo.id} {...toDo} deleteToDo={deleteToDo} />)}
         </ScrollView>
       </View>
     </View>
+    {/* {
+      loadedToDOs ? 
+    :
+      <AppLoading />
+      
+    } */}
+    </>
   );
 }
 
