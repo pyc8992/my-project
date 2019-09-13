@@ -32,13 +32,14 @@ export default class ToDo extends Component {
                 </TouchableOpacity>
                 {isEditing ?  
                 <TextInput 
-                style={[
+                style={[ 
                     styles.text, 
                     styles.input, 
                     isCompleted ? styles.completedText : styles.uncompletedText ]} value={toDoValue} multiline={true}
                     onChangeText={this._controllInput}
                     returnKeyType={"done"}
                     onBlur={this._finishEditing}
+                    underlineColorAndroid={"transparent"}
                 />
                  : 
                 <Text 
