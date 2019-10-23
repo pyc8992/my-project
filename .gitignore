@@ -2,7 +2,7 @@
 
 # dependencies
 /node_modules
-/movie_app_2019/node_modules
+/*/node_modules
 /.pnp
 .pnp.js
 
