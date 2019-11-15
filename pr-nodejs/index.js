@@ -1,36 +1,25 @@
 const express = require('express');
-const morgan = require('morgan');
 const app = express();
+const morgan = require('morgan');
+const users = [
+    { id:1, name:'alice'},
+    { id:2, name:'bek'},
+    { id:3, name:'chris'},
+];
 
-function commonmw(req, res, next) {
-    console.log('commonmw');
+app.use(morgan('dev'));
 
-    next(new Error('Error ouccered'));
-};
-
-function errormw(err, req, res, next){
-    console.log(err.message);
-    //에러를 처리
-    next();
-};
-
-app.use(commonmw);
-app.use(errormw);
-
-// function logger(req, res, next) {
-//     console.log('i am logger');
-//     next();
-// }
-
-// function logger2(req, res, next) {
-//     console.log('i am logger2');
-//     next();
-// }
-
-// app.use(logger);
-// app.use(logger2);
-// app.use(morgan('dev'));
+app.get('/users', (req, res) => {
+    req.query.limit = req.query.limit || 10;
+    const limit = parseInt(req.query.limit, 10);
+    if(Number.isNaN(limit)) {
+        return res.status(400).end();
+    }
+    res.json(users.slice(0, limit));
+});
 
 app.listen(3000, () => {
-    console.log('Server is running');
-})
+    console.log('Example app listening on port 3000!');
+});
+
+module.exports = app;
