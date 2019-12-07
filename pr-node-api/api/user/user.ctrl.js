@@ -12,7 +12,9 @@ const index = (req, res) => {
             limit: limit
         })
         .then(users => {
-        res.json(users);
+        return res.json(users);
+    }).catch((e) => {
+        return res.status(500).end();
     });
     // res.json(users.slice(0, limit));
 };
@@ -23,9 +25,7 @@ const show = (req, res) => {
     if(Number.isNaN(id)) return res.status(400).end();
 
     models.User.findOne({
-        where:{
-            id: id
-        }
+        where:{ id }
     }).then(user => {
         if(!user) return res.status(404).end();
         res.json(user);
@@ -34,13 +34,12 @@ const show = (req, res) => {
 
 const destroy = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    
     if(Number.isNaN(id)) return res.status(400).end();
     
     models.User.destroy({
         where: {id}
     }).then(() => {
-        res.status(204).end();
+        return res.status(204).end();
     });
 }
 
@@ -65,9 +64,6 @@ const update = (req, res) => {
 
     const name = req.body.name;
     if(!name) return res.status(400).end();
-
-    // if(isConflict) return res.status(409).end();
-    // if(!user) return res.status(404).end();
 
     models.User.findOne({where:{id}})
         .then(user => {
