@@ -23,7 +23,10 @@ function VideoUploadPage() {
     const [description, setDescription] = useState('');
     const [videoPrivate, setVideoPrivate] = useState(0);
     const [category, setCategory] = useState('Flim & Animation');
-    
+    const [filePath, setFilePath] = useState('');
+    const [duration, setDuration] = useState('');
+    const [thumbnailPath, setThumbnailPath] = useState('');
+
     const onChangeTitle = (e) => {
         setVdeoTitle(e.currentTarget.value);
     }
@@ -41,16 +44,36 @@ function VideoUploadPage() {
     }
 
     const onDrop = (files) => {
-        let formData = new FormData;
+        let formData = new FormData();
         const config = {
             header: {'content-type': 'multipart/form-data'}
         }
+        console.log(files)
+
         formData.append('file', files[0]);
         
         Axios.post('/api/video/uploadfiles', formData, config)
             .then(response => {
                 if(response.data.success){
                     console.log(response.data);
+
+                    let variable = {
+                        filePath:response.data.filePath,
+                        fileName: response.data.fileName
+                    };
+
+                    setFilePath(response.data.filePath);
+
+                    Axios.post('/api/video/thumbnail', variable)
+                    .then(response => {
+                        if(response.data.success){
+                            console.log(response.data);
+                            setDuration(response.data.duration);
+                            setThumbnailPath(response.data.filePath);
+                        }else{
+                            alert('썸네일 생성에 실패했습니다.');
+                        }
+                    });
                 } else{
                     alert('비디오 업로드를 실패하였습니다.');
                 }
@@ -65,19 +88,24 @@ function VideoUploadPage() {
             
             <Form onSubmit>
                 <div style={{display:'flex', justifyContent:'space-between'}}>
-                    <Dropzone onDrop={onDrop} 
-                     multiple={false}
-                     maxSize={10000000}>{({getRootProps, getInputProps}) => (
+                    <Dropzone 
+                    onDrop={onDrop} 
+                    multiple={false}
+                    maxSize={800000000}>
+                        {({getRootProps, getInputProps}) => (
                         <div style={{width:'300px', height:'240px', border:'1px solid lightgray', display:'flex',
-                    alignItems:'center', justifyContent:'center'}} {...getRootProps}>
+                    alignItems:'center', justifyContent:'center'}} {...getRootProps()}>
                         <input {...getInputProps()} />
                         <Icon type="plus" style={{fontSize:'3rem'}} />
                         </div>
                     )}
                     </Dropzone>
-                    <div>
-                        <img src alt />
-                    </div>
+                    {
+                        thumbnailPath && 
+                        <div>
+                            <img src={`http://localhost:5000/${thumbnailPath}`} alt='thumbnail' />
+                        </div>
+                    }
                 </div>
                 <br />
                 <br />
