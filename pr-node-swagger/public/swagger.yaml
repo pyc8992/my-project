@@ -1,0 +1,30 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: 'Test API'
+  description: 'Test API'
+servers:
+  - description: Test API
+    url: http://localhost:4000/
+paths:
+  /adder:
+    get:
+      summary: Adder API
+      parameters:
+        - name: one
+          in: query
+          description: first value
+          required: true
+          schema:
+            type: integer
+        - name: two
+          in: query
+          description: second value
+          required: ture
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Added Result
+          schema:
+            type: integer
