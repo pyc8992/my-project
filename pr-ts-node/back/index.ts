@@ -8,10 +8,19 @@ import * as passport from 'passport';
 import * as hpp from 'hpp';
 import * as helmet from 'helmet';
 
+import { sequelize } from './models';
+
 dotenv.config();
 const app = express();
 const prod: boolean = process.env.NODE_ENV === 'production';
 app.set('port', prod ? process.env.PORT : 4000);
+sequelize.sync({force: false })
+  .then(() => {
+    console.log("Database connected");
+  })
+  .catch((err: Error) => {
+    console.error(err);
+  });
 
 if (prod) {
   app.use(hpp());
@@ -46,7 +55,8 @@ app.use(expressSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.get('/', (req, res) => {
+
+app.get('/', (req, res, next) => {
   res.send('success');
 });
 

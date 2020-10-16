@@ -9,16 +9,23 @@ var dotenv = require("dotenv");
 var passport = require("passport");
 var hpp = require("hpp");
 var helmet = require("helmet");
+var models_1 = require("./models");
 dotenv.config();
 var app = express();
 var prod = process.env.NODE_ENV === 'production';
 app.set('port', prod ? process.env.PORT : 4000);
+models_1.sequelize.sync({ force: false })
+    .then(function () {
+    console.log("Database connected");
+})["catch"](function (err) {
+    console.error(err);
+});
 if (prod) {
     app.use(hpp());
     app.use(helmet());
     app.use(morgan('combined'));
     app.use(cors({
-        origin: /docki\.com$/,
+        origin: /nodebird\.com$/,
         credentials: true
     }));
 }
@@ -40,13 +47,13 @@ app.use(expressSession({
     cookie: {
         httpOnly: true,
         secure: false,
-        domain: prod ? '.docki.com' : undefined
+        domain: prod ? '.nodebird.com' : undefined
     },
     name: 'test'
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.get('/', function (req, res) {
+app.get('/', function (req, res, next) {
     res.send('success');
 });
 app.listen(app.get('port'), function () {
