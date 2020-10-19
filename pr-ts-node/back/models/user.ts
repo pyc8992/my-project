@@ -18,7 +18,7 @@ class User extends Model {
   public readonly Followers?: User[];
   public readonly Followings?: User[];
 
-  public addFollwing!: BelongsToManyAddAssociationMixin<User, number>;
+  public addFollowing!: BelongsToManyAddAssociationMixin<User, number>;
   public getFollowings!: BelongsToManyGetAssociationsMixin<User>;
   public removeFollowing!: BelongsToManyRemoveAssociationMixin<User, number>;
   public getFollowers!: BelongsToManyGetAssociationsMixin<User>;

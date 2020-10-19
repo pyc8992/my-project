@@ -9,8 +9,10 @@ import * as hpp from 'hpp';
 import * as helmet from 'helmet';
 
 import { sequelize } from './models';
-import userRouter from './routes/user';
-import postRouter from './routes/post';
+import userAPIRouter from './routes/user';
+import postAPIRouter from './routes/post';
+import postsAPIRouter from './routes/posts';
+import hashtagAPIRouter from './routes/hashtag';
 
 dotenv.config();
 const app = express();
@@ -57,12 +59,10 @@ app.use(expressSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-console.log("1");
-app.use('/user', userRouter);
-console.log("2");
-
-app.use('/post', postRouter);
-console.log("3");
+app.use('/api/user', userAPIRouter);
+app.use('/api/post', postAPIRouter);
+app.use('/api/posts', postsAPIRouter);
+app.use('/api/hashtag', hashtagAPIRouter);
 
 app.get('/', (req, res, next) => {
   res.send('success');

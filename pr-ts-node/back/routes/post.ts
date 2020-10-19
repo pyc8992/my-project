@@ -9,6 +9,7 @@ import Post from '../models/post';
 import Hashtag from '../models/hashtag';
 import Image from '../models/image';
 import User from '../models/user';
+import Comment from '../models/comment';
 import Bluebird = require('bluebird');
 
 const router = express.Router();
@@ -75,6 +76,175 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   } catch (err) {
     console.error(err);
     next(err);
+  }
+});
+
+router.post('/images', upload.array('image'), (req, res, next) => {
+  console.log(req.files);
+  res.json((req.files as Express.MulterS3.File[]).map((v) => v.location));
+});
+
+router.get('/:id', async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.id },
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }, {
+        model: Image,
+      }],
+    });
+    return res.json(post);
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.delete('/:id', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    await Post.destroy({ where: { id: req.params.id } });
+    return res.send(req.params.id);
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.get('/:id/comments', async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+
+    const comments = await Comment.findAll({
+      where: {
+        PostId: req.params.id,
+      },
+      order: [['createdAt', 'ASC']],
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }],
+    });
+    return res.json(comments);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/comment', isLoggedIn, async (req, res, next) => { // POST /api/post/1000000/comment
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    const newComment = await Comment.create({
+      PostId: post.id,
+      UserId: req.user!.id,
+      content: req.body.content,
+    });
+    await post.addComment(newComment.id);
+    const comment = await Comment.findOne({
+      where: {
+        id: newComment.id,
+      },
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }],
+    });
+    return res.json(comment);
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.post('/:id/like', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    await post.addLiker(req.user!.id);
+    return res.json({ userId: req.user!.id });
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.params.id } });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    await post.removeLiker(req.user!.id);
+    return res.json({ userId: req.user!.id });
+  } catch (e) {
+    console.error(e);
+    return next(e);
+  }
+});
+
+router.post('/:id/retweet', isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.id },
+      include: [{
+        model: Post,
+        as: 'Retweet',
+      }],
+    });
+    if (!post) {
+      return res.status(404).send('포스트가 존재하지 않습니다.');
+    }
+    if (req.user!.id === post.UserId || (post.Retweet && post.Retweet.UserId === req.user!.id)) {
+      return res.status(403).send('자신의 글은 리트윗할 수 없습니다.');
+    }
+    const retweetTargetId = post.RetweetId || post.id;
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user!.id,
+        RetweetId: retweetTargetId,
+      },
+    });
+    if (exPost) {
+      return res.status(403).send('이미 리트윗했습니다.');
+    }
+    const retweet = await Post.create({
+      UserId: req.user!.id,
+      RetweetId: retweetTargetId,
+      content: 'retweet',
+    });
+    const retweetWithPrevPost = await Post.findOne({
+      where: { id: retweet.id },
+      include: [{
+        model: User,
+        attributes: ['id', 'nickname'],
+      }, {
+        model: Post,
+        as: 'Retweet',
+        include: [{
+          model: User,
+          attributes: ['id', 'nickname'],
+        }, {
+          model: Image,
+        }],
+      }],
+    });
+    return res.json(retweetWithPrevPost);
+  } catch (e) {
+    console.error(e);
+    return next(e);
   }
 });
 
