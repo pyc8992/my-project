@@ -9,6 +9,8 @@ import * as hpp from 'hpp';
 import * as helmet from 'helmet';
 
 import { sequelize } from './models';
+import userRouter from './routes/user';
+import postRouter from './routes/post';
 
 dotenv.config();
 const app = express();
@@ -55,6 +57,12 @@ app.use(expressSession({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+console.log("1");
+app.use('/user', userRouter);
+console.log("2");
+
+app.use('/post', postRouter);
+console.log("3");
 
 app.get('/', (req, res, next) => {
   res.send('success');
