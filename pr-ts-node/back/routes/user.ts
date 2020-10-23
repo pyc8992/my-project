@@ -6,13 +6,14 @@ import Post from '../models/post';
 import User from '../models/user';
 
 import { isLoggedIn } from './middleware';
+import { Request } from 'express';
 
 const router = express.Router();
 
+// type UserWithoutPassword = Omit<User, 'password'>;
 router.get('/', isLoggedIn, (req, res) => { // /api/user/
   const user = req.user!.toJSON() as User;
-  delete user.password;
-  return res.json(user);
+  return res.json({ ...user, password: null });
 });
 
 router.post('/', async (req, res, next) => { // POST /api/user 회원가입
@@ -127,7 +128,7 @@ router.post('/login', (req, res, next) => { // POST /api/user/login
   })(req, res, next);
 });
 
-router.get('/:id/followings', isLoggedIn, async (req, res, next) => { // /api/user/:id/followings
+router.get('/:id/followings', isLoggedIn, async (req: Request<any, any, any, {limit: string, offset: string}>, res, next) => { // /api/user/:id/followings
   try {
     const user = await User.findOne({
       where: { id: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0 },
@@ -145,7 +146,7 @@ router.get('/:id/followings', isLoggedIn, async (req, res, next) => { // /api/us
   }
 });
 
-router.get('/:id/followers', isLoggedIn, async (req, res, next) => { // /api/user/:id/followers
+router.get('/:id/followers', isLoggedIn, async (req: Request<any, any, any, {limit: string, offset: string}>, res, next) => { // /api/user/:id/followers
   try {
     const user = await User.findOne({
       where: { id: parseInt(req.params.id, 10) || (req.user && req.user.id) || 0 },

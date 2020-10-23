@@ -4,10 +4,11 @@ import Post from '../models/post';
 import Hashtag from '../models/hashtag';
 import User from '../models/user';
 import Image from '../models/image';
+import { Request } from 'express';
 
 const router = express.Router();
 
-router.get('/:tag', async (req, res, next) => {
+router.get('/:tag', async (req: Request<any, any, any, {lastId: string, limit: string}>, res, next) => {
   try {
     let where = {};
     if (parseInt(req.query.lastId, 10)) {

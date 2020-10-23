@@ -1,4 +1,6 @@
 import * as express from 'express';
+import { RequestHandler, ErrorRequestHandler, Request, Response, NextFunction } from 'express';
+
 import * as morgan from 'morgan';
 import * as cors from 'cors';
 import * as cookieParser from 'cookie-parser';
@@ -66,6 +68,11 @@ app.use('/api/hashtag', hashtagAPIRouter);
 
 app.get('/', (req, res, next) => {
   res.send('success');
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).send('server error');
 });
 
 app.listen(app.get('port'), () => {

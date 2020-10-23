@@ -10,7 +10,6 @@ import Hashtag from '../models/hashtag';
 import Image from '../models/image';
 import User from '../models/user';
 import Comment from '../models/comment';
-import Bluebird = require('bluebird');
 
 const router = express.Router();
 
@@ -50,7 +49,7 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
 
     if (req.body.image) {
       if (Array.isArray(req.body.Image)) {
-        const promises: Bluebird<Image>[] = req.body.image.map((image: string) => Image.create({ src: image }));
+        const promises: Promise<Image>[] = req.body.image.map((image: string) => Image.create({ src: image }));
         const images = await Promise.all(promises);
         await newPost.addImages(images);
       } else {

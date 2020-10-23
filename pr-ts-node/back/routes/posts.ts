@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as Sequelize from 'sequelize';
+import { Request } from 'express';
 
 import Image from '../models/image';
 import Post from '../models/post';
@@ -7,7 +8,7 @@ import User from '../models/user';
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => { // GET /api/posts
+router.get('/', async (req: Request<any, any, any, {lastId: string, limit: string}>, res, next) => { // GET /api/posts
   try {
     let where = {};
     if (parseInt(req.query.lastId, 10)) {
