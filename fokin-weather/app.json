@@ -2,13 +2,6 @@
   "expo": {
     "name": "Clone Weather App",
     "slug": "clone-weather-app",
-    "privacy": "public",
-    "sdkVersion": "34.0.0",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,6 +19,8 @@
     "ios": {
       "supportsTablet": true
     },
-    "description": "For Study"
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }
