@@ -12,7 +12,7 @@
     "sqlite3": "^4.1.1"
   },
   "devDependencies": {
-    "mocha": "^6.2.2",
+    "mocha": "^6.2.3",
     "should": "^13.2.3",
     "supertest": "^4.0.2"
   },
